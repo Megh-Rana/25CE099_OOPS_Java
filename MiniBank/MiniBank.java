@@ -1,5 +1,3 @@
-import java.util.Scanner;
-
 public class MiniBank {
 
     record BankInfo(String name, String branch) {
@@ -24,49 +22,24 @@ public class MiniBank {
         BankInfo bank = new BankInfo("MiniBank", "Main Branch");
         System.out.println(bank);
 
-        Scanner sc = new Scanner(System.in);
-        boolean running = true;
+        Account[] accounts = {
+            new Account("Riya", 5000),
+            new Account("Aman", 3000),
+            new Account("Priya")
+        };
 
-        while (running) {
-            printMenu();
-            System.out.print("Enter choice: ");
+        accounts[0].deposit(2000);
+        System.out.println(accounts[0].getOwnerName() + " balance after deposit 2000: " + accounts[0].getBalance());
 
-            int choice;
-            try {
-                choice = Integer.parseInt(sc.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.\n");
-                continue;
-            }
+        boolean result = accounts[0].withdraw(3000);
+        System.out.println("Withdraw 3000: " + result + " | Balance: " + accounts[0].getBalance());
 
-            MenuOption option;
-            try {
-                option = MenuOption.values()[choice - 1];
-            } catch (ArrayIndexOutOfBoundsException e) {
-                System.out.println("Invalid choice. Please select 1–" + MenuOption.values().length + ".\n");
-                continue;
-            }
+        result = accounts[0].withdraw(10000);
+        System.out.println("Withdraw 10000: " + result + " | Balance: " + accounts[0].getBalance());
 
-            switch (option) {
-                case OPEN_ACCOUNT -> System.out.println("Open Account — to be implemented in a later lab.\n");
-                case DEPOSIT      -> System.out.println("Deposit — to be implemented in a later lab.\n");
-                case WITHDRAW     -> System.out.println("Withdraw — to be implemented in a later lab.\n");
-                case TRANSFER     -> System.out.println("Transfer — to be implemented in a later lab.\n");
-                case EXIT         -> {
-                    System.out.println("Thank you for using MiniBank. Goodbye!");
-                    running = false;
-                }
-            }
-        }
-
-        sc.close();
-    }
-
-    private static void printMenu() {
-        System.out.println("--- MiniBank Menu ---");
-        MenuOption[] options = MenuOption.values();
-        for (int i = 0; i < options.length; i++) {
-            System.out.println((i + 1) + ". " + options[i]);
+        System.out.println();
+        for (Account acc : accounts) {
+            System.out.println(acc.getAccountNumber() + " | " + acc.getOwnerName() + " | " + acc.getBalance());
         }
     }
 }
