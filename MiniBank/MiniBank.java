@@ -1,26 +1,33 @@
 public class MiniBank {
 
     public static void main(String[] args) {
-        System.out.println("=== Validator Tests ===");
-        System.out.println("Mobile 9876543210: " + Validator.isValidMobile("9876543210"));
-        System.out.println("Mobile 12345:      " + Validator.isValidMobile("12345"));
-        System.out.println("Email abc@xyz.com:  " + Validator.isValidEmail("abc@xyz.com"));
-        System.out.println("Email not-an-email: " + Validator.isValidEmail("not-an-email"));
-        System.out.println("PAN ABCDE1234F:     " + Validator.isValidPan("ABCDE1234F"));
-        System.out.println("PAN 12345:          " + Validator.isValidPan("12345"));
-        System.out.println("IFSC SBIN0001234:   " + Validator.isValidIfsc("SBIN0001234"));
-        System.out.println("IFSC INVALID:       " + Validator.isValidIfsc("INVALID"));
+        Account[] accounts = {
+            new SavingsAccount("Riya", 10000, 2000),
+            new CurrentAccount("Aman", 5000, 3000),
+            new FixedDepositAccount("Priya", 50000)
+        };
 
-        System.out.println("\n=== Command Parser ===");
-        Command cmd = CommandParser.parse("DEPOSIT AC0001 500");
-        System.out.println("Type:    " + cmd.type());
-        System.out.println("Account: " + cmd.accountNumber());
-        System.out.println("Amount:  " + cmd.amount());
+        System.out.println("=== Account Interest Rates (Polymorphism) ===");
+        for (Account acc : accounts) {
+            System.out.printf("%s — Interest Rate: %.1f%%%n", acc, acc.interestRate());
+        }
 
-        System.out.println("\n=== Statement Formatter ===");
-        Account acc = new Account("Riya", 5000);
-        acc.deposit(2000);
-        acc.withdraw(3000);
-        System.out.print(StatementFormatter.buildStatement(acc));
+        System.out.println("\n=== Withdrawal Tests ===");
+        System.out.println("Savings withdraw 9000 (would leave < minBalance): " + accounts[0].withdraw(9000));
+        System.out.println("Savings withdraw 5000 (OK): " + accounts[0].withdraw(5000));
+        System.out.println("Savings balance: " + accounts[0].getBalance());
+
+        System.out.println("Current withdraw 7000 (uses overdraft): " + accounts[1].withdraw(7000));
+        System.out.println("Current balance: " + accounts[1].getBalance());
+
+        System.out.println("FD withdraw 1000 (locked): " + accounts[2].withdraw(1000));
+        System.out.println("FD balance: " + accounts[2].getBalance());
+
+        System.out.println("\n=== Pattern instanceof ===");
+        for (Account acc : accounts) {
+            if (acc instanceof SavingsAccount sa) {
+                System.out.println(sa.getOwnerName() + " has a Savings Account with rate " + sa.interestRate() + "%");
+            }
+        }
     }
 }
