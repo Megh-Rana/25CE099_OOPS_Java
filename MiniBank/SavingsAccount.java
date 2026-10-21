@@ -1,19 +1,14 @@
-public class SavingsAccount extends Account {
+import java.io.Serializable;
 
-    private long minBalance;
+public class SavingsAccount extends Account implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private final long minBalance;
 
-    public SavingsAccount(String ownerName, long openingBalance, long minBalance) {
-        super(ownerName, openingBalance);
+    public SavingsAccount(String owner, long balance, long minBalance) {
+        super(owner, balance);
         this.minBalance = minBalance;
     }
 
-    @Override
-    public double interestRate() {
-        return 4.0;
-    }
-
-    @Override
-    public boolean canWithdraw(long amount) {
-        return (getBalance() - amount) >= minBalance;
-    }
+    @Override public double  interestRate()        { return 4.0; }
+    @Override public boolean canWithdraw(long amt) { return amt > 0 && getBalance() - amt >= minBalance; }
 }

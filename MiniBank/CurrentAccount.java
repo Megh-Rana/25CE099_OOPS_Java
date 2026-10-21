@@ -1,19 +1,14 @@
-public class CurrentAccount extends Account {
+import java.io.Serializable;
 
-    private long overdraftLimit;
+public class CurrentAccount extends Account implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private final long overdraftLimit;
 
-    public CurrentAccount(String ownerName, long openingBalance, long overdraftLimit) {
-        super(ownerName, openingBalance);
+    public CurrentAccount(String owner, long balance, long overdraftLimit) {
+        super(owner, balance);
         this.overdraftLimit = overdraftLimit;
     }
 
-    @Override
-    public double interestRate() {
-        return 0.0;
-    }
-
-    @Override
-    public boolean canWithdraw(long amount) {
-        return (getBalance() - amount) >= -overdraftLimit;
-    }
+    @Override public double  interestRate()        { return 0.0; }
+    @Override public boolean canWithdraw(long amt) { return amt > 0 && getBalance() + overdraftLimit >= amt; }
 }

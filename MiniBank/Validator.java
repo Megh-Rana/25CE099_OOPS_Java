@@ -22,4 +22,8 @@ public class Validator {
     public static boolean isValidIfsc(String s) {
         return s != null && IFSC.matcher(s).matches();
     }
+
+    public static boolean isValidAmount(long amt) {
+        return amt > 0;
+    }
 }

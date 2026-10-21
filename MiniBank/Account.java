@@ -1,68 +1,67 @@
+import java.io.Serializable;
 import java.util.Objects;
 
-public abstract class Account implements Transactable, InterestBearing {
+public abstract class Account implements Transactable, InterestBearing, Comparable<Account>, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     private final String accountNumber;
 
     @MaxLength(100)
-    private String ownerName;
+    private final String ownerName;
 
     @Positive
     private long balance;
 
     private boolean active;
 
-    private static long accountCounter = 0;
+    private static long counter = 0;
 
-    private static String generateAccountNumber() {
-        accountCounter++;
-        return String.format("AC%04d", accountCounter);
-    }
+    public static void resetCounter() { counter = 0; } // for tests
 
     public Account(String ownerName, long openingBalance) {
-        this.accountNumber = generateAccountNumber();
-        this.ownerName = ownerName;
-        this.balance = openingBalance;
-        this.active = true;
+        this.accountNumber = String.format("AC%04d", ++counter);
+        this.ownerName     = ownerName;
+        this.balance       = openingBalance;
+        this.active        = true;
     }
 
-    public Account(String ownerName) {
-        this(ownerName, 0);
-    }
+    public Account(String ownerName) { this(ownerName, 0); }
 
     @Override
-    public abstract double interestRate();
+    public abstract double  interestRate();
 
     public abstract boolean canWithdraw(long amount);
 
     @Override
     public double yearlyInterest() {
-        return balance * interestRate() / 100.0;
+        return getBalance() * interestRate() / 100.0;
     }
 
     @Override
-    public void deposit(long amount) {
+    public synchronized void deposit(long amount) {
         if (amount > 0) balance += amount;
     }
 
     @Override
-    public boolean withdraw(long amount) {
-        if (amount > 0 && canWithdraw(amount)) {
+    public synchronized boolean withdraw(long amount) {
+        if (canWithdraw(amount)) {
             balance -= amount;
             return true;
         }
         return false;
     }
 
-    public String getAccountNumber() { return accountNumber; }
-    public String getOwnerName()     { return ownerName; }
-    public long   getBalance()       { return balance; }
-    public boolean isActive()        { return active; }
+    public String  getAccountNumber() { return accountNumber; }
+    public String  getOwnerName()     { return ownerName; }
+    public synchronized long getBalance() { return balance; }
+    public boolean isActive()         { return active; }
+    public void    setActive(boolean v){ active = v; }
 
     @Override
-    public String toString() {
-        return accountNumber + " | " + ownerName + " | " + balance;
+    public int compareTo(Account o) {
+        return accountNumber.compareTo(o.accountNumber);
     }
 
     @Override
@@ -75,5 +74,11 @@ public abstract class Account implements Transactable, InterestBearing {
     @Override
     public int hashCode() {
         return Objects.hash(accountNumber);
+    }
+
+    @Override
+    public String toString() {
+        return accountNumber + " | " + ownerName + " | balance=" + balance
+                + " | rate=" + interestRate() + "%" + (active ? "" : " [CLOSED]");
     }
 }

@@ -1,16 +1,10 @@
-public class FixedDepositAccount extends Account {
+import java.io.Serializable;
 
-    public FixedDepositAccount(String ownerName, long openingBalance) {
-        super(ownerName, openingBalance);
-    }
+public class FixedDepositAccount extends Account implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    public double interestRate() {
-        return 7.0;
-    }
+    public FixedDepositAccount(String owner, long balance) { super(owner, balance); }
 
-    @Override
-    public boolean canWithdraw(long amount) {
-        return false;
-    }
+    @Override public double  interestRate()        { return 7.0; }
+    @Override public boolean canWithdraw(long amt) { return false; }
 }
