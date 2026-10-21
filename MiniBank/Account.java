@@ -1,10 +1,16 @@
 import java.util.Objects;
 
-public abstract class Account {
+public abstract class Account implements Transactable, InterestBearing {
 
+    @Id
     private final String accountNumber;
+
+    @MaxLength(100)
     private String ownerName;
+
+    @Positive
     private long balance;
+
     private boolean active;
 
     private static long accountCounter = 0;
@@ -25,14 +31,22 @@ public abstract class Account {
         this(ownerName, 0);
     }
 
+    @Override
     public abstract double interestRate();
 
     public abstract boolean canWithdraw(long amount);
 
+    @Override
+    public double yearlyInterest() {
+        return balance * interestRate() / 100.0;
+    }
+
+    @Override
     public void deposit(long amount) {
         if (amount > 0) balance += amount;
     }
 
+    @Override
     public boolean withdraw(long amount) {
         if (amount > 0 && canWithdraw(amount)) {
             balance -= amount;
@@ -42,9 +56,9 @@ public abstract class Account {
     }
 
     public String getAccountNumber() { return accountNumber; }
-    public String getOwnerName() { return ownerName; }
-    public long getBalance() { return balance; }
-    public boolean isActive() { return active; }
+    public String getOwnerName()     { return ownerName; }
+    public long   getBalance()       { return balance; }
+    public boolean isActive()        { return active; }
 
     @Override
     public String toString() {

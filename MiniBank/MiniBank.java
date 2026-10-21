@@ -1,33 +1,43 @@
+import java.util.Arrays;
+
+/**
+ * MiniBank — lab-07 state
+ * Demonstrates: custom annotations (@Id, @Positive, @MaxLength) + AnnotationValidator.
+ */
 public class MiniBank {
 
     public static void main(String[] args) {
+        // --- Annotation validation demo ---
+        System.out.println("=== AnnotationValidator — valid account ===");
+        Account good = new SavingsAccount("Riya", 10000, 2000);
+        String[] errs = AnnotationValidator.validate(good);
+        System.out.println(errs.length == 0 ? "No errors." : Arrays.toString(errs));
+
+        System.out.println("\n=== AnnotationValidator — account with negative balance ===");
+        Account bad = new CurrentAccount("BadActor", -100, 0);
+        errs = AnnotationValidator.validate(bad);
+        if (errs.length == 0) {
+            System.out.println("No errors.");
+        } else {
+            for (String e : errs) System.out.println("  ERROR: " + e);
+        }
+
+        // --- Existing behaviour ---
+        System.out.println("\n=== Account Interest Rates ===");
         Account[] accounts = {
-            new SavingsAccount("Riya", 10000, 2000),
-            new CurrentAccount("Aman", 5000, 3000),
+            new SavingsAccount("Riya",  10000, 2000),
+            new CurrentAccount("Aman",  5000,  3000),
             new FixedDepositAccount("Priya", 50000)
         };
-
-        System.out.println("=== Account Interest Rates (Polymorphism) ===");
         for (Account acc : accounts) {
-            System.out.printf("%s — Interest Rate: %.1f%%%n", acc, acc.interestRate());
+            System.out.printf("%s — rate: %.1f%%  yearly: %.2f%n",
+                    acc, acc.interestRate(), acc.yearlyInterest());
         }
 
-        System.out.println("\n=== Withdrawal Tests ===");
-        System.out.println("Savings withdraw 9000 (would leave < minBalance): " + accounts[0].withdraw(9000));
-        System.out.println("Savings withdraw 5000 (OK): " + accounts[0].withdraw(5000));
-        System.out.println("Savings balance: " + accounts[0].getBalance());
-
-        System.out.println("Current withdraw 7000 (uses overdraft): " + accounts[1].withdraw(7000));
-        System.out.println("Current balance: " + accounts[1].getBalance());
-
-        System.out.println("FD withdraw 1000 (locked): " + accounts[2].withdraw(1000));
-        System.out.println("FD balance: " + accounts[2].getBalance());
-
-        System.out.println("\n=== Pattern instanceof ===");
-        for (Account acc : accounts) {
-            if (acc instanceof SavingsAccount sa) {
-                System.out.println(sa.getOwnerName() + " has a Savings Account with rate " + sa.interestRate() + "%");
-            }
-        }
+        // WithdrawRule lambda
+        System.out.println("\n=== WithdrawRule (lambda) ===");
+        WithdrawRule rule = (acc, amt) -> acc.canWithdraw(amt);
+        System.out.println("Allow withdraw 5000 from savings: " + rule.allow(accounts[0], 5000));
+        System.out.println("Allow withdraw 9500 from savings: " + rule.allow(accounts[0], 9500));
     }
 }
