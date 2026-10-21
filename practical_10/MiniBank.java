@@ -124,12 +124,14 @@ public class MiniBank {
 
         Thread t1 = new Thread(() -> transferDeadlock(A, B, 100), "T1-A->B");
         Thread t2 = new Thread(() -> transferDeadlock(B, A, 100), "T2-B->A");
+        t1.setDaemon(true);
+        t2.setDaemon(true);
         t1.start(); t2.start();
-        // wait 2 seconds then interrupt to prevent test hanging
-        Thread.sleep(2000);
-        t1.interrupt(); t2.interrupt();
-        t1.join(); t2.join();
-        System.out.println("(deadlock detected — interrupted after 2s)");
+        // Wait 1 second to observe deadlock
+        Thread.sleep(1000);
+        System.out.println("[DEADLOCK OBSERVED] T1 holds " + A.getAccountNumber() + " waiting for " + B.getAccountNumber()
+                + "; T2 holds " + B.getAccountNumber() + " waiting for " + A.getAccountNumber());
+        System.out.println("Resolving deadlock via consistent lock order below...");
 
         System.out.println("\n=== Fixed Transfer (consistent lock order) ===");
         Account C = new Account("Carol", 5000);
